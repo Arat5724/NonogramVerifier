@@ -37,8 +37,7 @@ class Line {
 
   void print() const;
 
- public:
-  //  private:
+ private:
   deque<int> clues_;
   int clue_size_;
   int sum_clues_;
@@ -68,7 +67,5 @@ class Line {
 
   void intersect_(const Line& other);
 };
-
-// ostream& operator<<(ostream& os, const Line& clue);
 
 #endif  // CLUE_HPP
