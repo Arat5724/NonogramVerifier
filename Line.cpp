@@ -62,27 +62,22 @@ int Line::get_rank() const {
          this->sum_clues_;
 }
 
-int Line::quick_solve() {
-  int result = this->solve_(1);
-  this->mark_();
-  return result;
-}
+int Line::quick_solve() { return this->solve_(1) && this->mark_(); }
 
-int Line::solve() {
-  int result = this->solve_(0);
-  this->mark_();
-  return result;
-}
+int Line::solve() { return this->solve_(0) && this->mark_(); }
 
 /*
-  0: success
-  1: end
-*/
-
+ * return value:
+ *  None
+ */
 void Line::update_capacity_() {
   this->capacity_ = this->end_index_ - this->start_index_ - this->sum_clues_;
 }
 
+/*
+ * return value:
+ *  None
+ */
 void Line::pop_clue_front_(int new_start_index) {
   this->start_index_ = new_start_index;
   this->sum_clues_ -= this->clues_.front();
@@ -92,6 +87,10 @@ void Line::pop_clue_front_(int new_start_index) {
   this->update_capacity_();
 }
 
+/*
+ * return value:
+ *  None
+ */
 void Line::pop_clue_back_(int new_end_index) {
   this->end_index_ = new_end_index;
   this->sum_clues_ -= this->clues_.back();
@@ -101,6 +100,10 @@ void Line::pop_clue_back_(int new_end_index) {
   this->update_capacity_();
 }
 
+/*
+ * return value:
+ *  None
+ */
 int Line::cells_empty_() {
   for (int i = this->start_index_; i < this->end_index_; i++) {
     if (this->cells_[i]) return 0;
@@ -183,9 +186,10 @@ int Line::mark_() {
 }
 
 /*
- * 0: success
- * 1: error
- * 2: end
+ * return value:
+ *  SUCCESS: success
+ *  ERROR: error
+ *  END: Don't have to continue
  */
 int Line::mark_clue_front_(int pos) {
   if (pos < 0) throw exception();
@@ -209,6 +213,12 @@ int Line::mark_clue_front_(int pos) {
   return SUCCESS;
 }
 
+/*
+ * return value:
+ *  SUCCESS: success
+ *  ERROR: error
+ *  END: Don't have to continue
+ */
 int Line::mark_clue_back_(int pos) {
   if (pos < 0) throw exception();
   if (pos > this->capacity_) return END;
@@ -231,6 +241,11 @@ int Line::mark_clue_back_(int pos) {
   return SUCCESS;
 }
 
+/*
+ * return value:
+ *  FRONT
+ *  BACK
+ */
 int Line::get_start_point_(int flag) {
   int number_none_blank_front, number_none_blank_back;
   number_none_blank_front = number_none_blank_back = 0;
@@ -251,6 +266,11 @@ int Line::get_start_point_(int flag) {
   }
 }
 
+/*
+ * return value:
+ *  SUCCESS: success
+ *  ERROR: error
+ */
 int Line::solve_(int flag) {
 #ifdef DEBUG
   this->print();
@@ -299,8 +319,13 @@ int Line::solve_(int flag) {
   return ERROR;  // No solution
 }
 
+/*
+ * return value:
+ *  SUCCESS: success
+ *  ERROR: error
+ */
 int Line::update_start_index_() {
-  if (this->clue_size_ == 0) return 0;
+  if (this->clue_size_ == 0) return SUCCESS;
   int new_start_index = this->start_index_;
   while (new_start_index == this->start_index_ &&
          this->start_index_ < this->end_index_) {
@@ -309,7 +334,7 @@ int Line::update_start_index_() {
       new_start_index++;
     if (new_start_index - this->start_index_ < this->clues_.front()) {
       for (int i = this->start_index_; i < new_start_index; i++) {
-        if (this->cells_[i] == O) return 1;
+        if (this->cells_[i] == O) return ERROR;
         this->cells_[i] = X;
       }
       while (new_start_index < this->end_index_ &&
@@ -319,12 +344,17 @@ int Line::update_start_index_() {
     }
   }
   this->update_capacity_();
-  if (this->capacity_ < 0) return 1;
-  return 0;
+  if (this->capacity_ < 0) return ERROR;
+  return SUCCESS;
 }
 
+/*
+ * return value:
+ *  SUCCESS: success
+ *  ERROR: error
+ */
 int Line::update_end_index_() {
-  if (this->clue_size_ == 0) return 0;
+  if (this->clue_size_ == 0) return SUCCESS;
   int new_end_index = this->end_index_;
   while (new_end_index == this->end_index_ &&
          this->start_index_ < this->end_index_) {
@@ -333,7 +363,7 @@ int Line::update_end_index_() {
       new_end_index--;
     if (this->end_index_ - new_end_index < this->clues_.back()) {
       for (int i = new_end_index; i < this->end_index_; i++) {
-        if (this->cells_[i] == O) return 1;
+        if (this->cells_[i] == O) return ERROR;
         this->cells_[i] = X;
       }
       while (new_end_index > this->start_index_ &&
@@ -343,8 +373,8 @@ int Line::update_end_index_() {
     }
   }
   this->update_capacity_();
-  if (this->capacity_ < 0) return 1;
-  return 0;
+  if (this->capacity_ < 0) return ERROR;
+  return SUCCESS;
 }
 
 void Line::intersect_(const Line& other) {
@@ -354,6 +384,7 @@ void Line::intersect_(const Line& other) {
   }
 }
 
+#ifdef DEBUG
 void Line::print() const {
   cout << "\nline.clues_= {";
   for (int clue : this->clues_) cout << clue << ", ";
@@ -377,3 +408,4 @@ void Line::print() const {
        << "line.end_index_= " << this->end_index_ << ";" << endl
        << "-------------------" << endl;
 }
+#endif
