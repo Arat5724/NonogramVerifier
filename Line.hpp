@@ -35,8 +35,9 @@ class Line {
   int quick_solve();
   int solve();
 
+#ifdef DEBUG
   void print() const;
-
+#endif
  private:
   deque<int> clues_;
   int clue_size_;
