@@ -13,5 +13,6 @@ int main(void) {
   Nonogram nonogram = NonogramLoader::load(filename);
   NonogramSolver::solve(nonogram);
   nonogram.print();
+  system("pause");
   return 0;
 }
