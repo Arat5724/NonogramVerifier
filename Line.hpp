@@ -20,6 +20,8 @@ using namespace std;
 #define FRONT 3
 #define BACK 2
 
+#define INIT 2
+
 class Line {
  public:
   Line();
@@ -29,6 +31,9 @@ class Line {
   int& operator[](int index) { return this->cells_[index]; }
   const int& operator[](int index) const { return this->cells_[index]; }
   ~Line();
+
+  int last_solving_;
+  int clue_size() const { return this->clue_size_; }
 
   int get_rank() const;
 

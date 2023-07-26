@@ -7,7 +7,8 @@ Line::Line(const string& clue_string)
       sum_clues_(0),
       cells_(vector<int>(clue_string.length(), 0)),
       start_index_(0),
-      end_index_(clue_string.length()) {
+      end_index_(clue_string.length()),
+      last_solving_(INIT) {
   char status = B;
   int clue;
 
@@ -42,7 +43,8 @@ Line::Line(const Line& other)
       capacity_(other.capacity_),
       cells_(other.cells_),
       start_index_(other.start_index_),
-      end_index_(other.end_index_) {}
+      end_index_(other.end_index_),
+      last_solving_(other.last_solving_) {}
 
 Line& Line::operator=(const Line& other) {
   this->clues_ = other.clues_;
@@ -52,6 +54,7 @@ Line& Line::operator=(const Line& other) {
   this->cells_ = other.cells_;
   this->start_index_ = other.start_index_;
   this->end_index_ = other.end_index_;
+  this->last_solving_ = other.last_solving_;
   return *this;
 }
 

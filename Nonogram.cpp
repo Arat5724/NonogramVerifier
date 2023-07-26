@@ -37,11 +37,10 @@ void Nonogram::solve(const deque<int>& order, const vector<bool>& is_in_order) {
 void Nonogram::solve_(const deque<int>& order, const vector<bool>& is_in_order,
                       int flag) {
   for (int i : order) {
-    deque<int> next_quick_solving_order;
-    deque<int> next_solving_order;
     int direction = (i < height_) ? H : V;
     i = (i < height_) ? i : (i - height_);
     Line& line = direction == H ? horizontal_lines_[i] : vertical_lines_[i];
+    if (line.clue_size() == 0 || line.last_solving_ <= flag) continue;
 #ifdef DEBUG
     cout << "direction: " << direction << endl;
     cout << "i: " << i << endl;
@@ -54,10 +53,13 @@ void Nonogram::solve_(const deque<int>& order, const vector<bool>& is_in_order,
     line.print();
 #endif
     if (status == ERROR) throw exception();
+    deque<int> next_quick_solving_order;
+    deque<int> next_solving_order;
     if (direction == H) {
       for (int j = 0; j < width_; j++) {
         if (vertical_lines_[j][i] != line[j]) {
           vertical_lines_[j][i] = line[j];
+          vertical_lines_[j].last_solving_ = 2;
           next_quick_solving_order.push_back(j + height_);
           if (flag == NORMAL && is_in_order[j + height_])
             next_solving_order.push_back(j + height_);
@@ -67,13 +69,18 @@ void Nonogram::solve_(const deque<int>& order, const vector<bool>& is_in_order,
       for (int j = 0; j < height_; j++) {
         if (horizontal_lines_[j][i] != line[j]) {
           horizontal_lines_[j][i] = line[j];
+          horizontal_lines_[j].last_solving_ = 2;
           next_quick_solving_order.push_back(j);
           if (flag == NORMAL && is_in_order[j]) next_solving_order.push_back(j);
         }
       }
     }
-    solve_(next_quick_solving_order, is_in_order, QUICK);
-    if (flag == NORMAL) solve_(next_solving_order, is_in_order, NORMAL);
+    if (!next_quick_solving_order.empty()) {
+      line.last_solving_ = flag;
+      solve_(next_quick_solving_order, is_in_order, QUICK);
+    }
+    if (!next_solving_order.empty())
+      solve_(next_solving_order, is_in_order, NORMAL);
   }
 }
 
