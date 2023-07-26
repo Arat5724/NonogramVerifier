@@ -68,6 +68,8 @@ class Line {
   int mark_clue_front_(int pos);
   int mark_clue_back_(int pos);
 
+  int update_clues_();
+
   int update_start_index_();
   int update_end_index_();
 

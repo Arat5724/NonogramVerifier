@@ -65,9 +65,17 @@ int Line::get_rank() const {
          this->sum_clues_;
 }
 
-int Line::quick_solve() { return this->solve_(1) && this->mark_(); }
+int Line::quick_solve() {
+  if (this->solve_(1) == ERROR) return ERROR;
+  if (this->update_clues_() == ERROR) return ERROR;
+  return SUCCESS;
+}
 
-int Line::solve() { return this->solve_(0) && this->mark_(); }
+int Line::solve() {
+  if (this->solve_(0) == ERROR) return ERROR;
+  if (this->update_clues_() == ERROR) return ERROR;
+  return SUCCESS;
+}
 
 /*
  * return value:
@@ -320,6 +328,46 @@ int Line::solve_(int flag) {
     return SUCCESS;
   }
   return ERROR;  // No solution
+}
+
+/*
+ * return value:
+ *  SUCCESS: success
+ *  ERROR: error
+ */
+int Line::update_clues_() {
+  if (this->clue_size_ == 0) return SUCCESS;
+  while (this->clue_size_) {
+    int block_size = 0;
+    int i = this->start_index_;
+    while (i < this->end_index_ && (*this)[i] == O) {
+      i++;
+      block_size++;
+    }
+    if (block_size == this->clues_.front()) {
+      while (i < this->end_index_ && (*this)[i] == X) i++;
+      this->pop_clue_front_(i);
+    } else if (block_size < this->clues_.front())
+      break;
+    else
+      return ERROR;
+  }
+  while (this->clue_size_) {
+    int block_size = 0;
+    int i = this->end_index_ - 1;
+    while (i >= this->start_index_ && (*this)[i] == O) {
+      i--;
+      block_size++;
+    }
+    if (block_size == this->clues_.back()) {
+      while (i >= this->start_index_ && (*this)[i] == X) i--;
+      this->pop_clue_back_(i + 1);
+    } else if (block_size < this->clues_.back())
+      break;
+    else
+      return ERROR;
+  }
+  return SUCCESS;
 }
 
 /*
