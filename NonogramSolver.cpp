@@ -19,14 +19,20 @@ deque<int> NonogramSolver::get_order_(Nonogram& nonogram) {
 }
 
 void NonogramSolver::solve(Nonogram& nonogram) {
-  deque<int> order = get_order_(nonogram);
-  nonogram.quick_solve(order);
-  order = get_order_(nonogram);
-  deque<int> solving_order;
-  vector<bool> is_in_order(nonogram.height() + nonogram.width(), false);
-  for (int pos : order) {
-    solving_order.push_back(pos);
-    is_in_order[pos] = true;
-    nonogram.solve(solving_order, is_in_order);
-  }
+  pair<int, int> prev_cells_info;
+  pair<int, int> current_cells_info = nonogram.cells_info();
+  do {
+    deque<int> order = get_order_(nonogram);
+    nonogram.quick_solve(order);
+    order = get_order_(nonogram);
+    deque<int> solving_order;
+    vector<bool> is_in_order(nonogram.height() + nonogram.width(), false);
+    for (int pos : order) {
+      solving_order.push_back(pos);
+      is_in_order[pos] = true;
+      nonogram.solve(solving_order, is_in_order);
+    }
+    prev_cells_info = current_cells_info;
+    current_cells_info = nonogram.cells_info();
+  } while (prev_cells_info != current_cells_info);
 }
