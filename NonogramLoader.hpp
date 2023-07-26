@@ -39,7 +39,14 @@ class NonogramLoader {
         vertical_string.push_back(raw_string[j * width + i]);
       vertical_lines.push_back(Line(vertical_string));
     }
-    return Nonogram(height, width, horizontal_lines, vertical_lines);
+
+    fin.open("setting");
+    if (!fin.is_open()) cout << "setting file doesn't exist." << endl;
+    string chars;
+    getline(fin, chars);
+    fin.close();
+    chars = chars.substr(0, 3);
+    return Nonogram(height, width, horizontal_lines, vertical_lines, chars);
   }
 };
 

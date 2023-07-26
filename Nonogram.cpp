@@ -1,11 +1,25 @@
 #include "Nonogram.hpp"
 
 Nonogram::Nonogram(int height, int width, vector<Line> horizontal_lines,
-                   vector<Line> vertical_lines)
+                   vector<Line> vertical_lines, string chars)
     : height_(height),
       width_(width),
       horizontal_lines_(horizontal_lines),
-      vertical_lines_(vertical_lines) {}
+      vertical_lines_(vertical_lines),
+      chars_(chars) {}
+
+pair<int, int> Nonogram::cells_info() const {
+  int filled = 0, non_filled = 0;
+  for (Line line : horizontal_lines_) {
+    for (int i = 0; i < width_; i++) {
+      if (line[i] == O)
+        filled++;
+      else if (line[i] == X)
+        non_filled++;
+    }
+  }
+  return {filled, non_filled};
+}
 
 int Nonogram::get_rank(int pos) const {
   if (pos < height_) return horizontal_lines_[pos].get_rank();
@@ -64,11 +78,14 @@ void Nonogram::solve_(const deque<int>& order, const vector<bool>& is_in_order,
 }
 
 void Nonogram::print() const {
+  char filled = chars_[0];
+  char non_filled = chars_[1];
+  char empty = chars_[2];
   for (int i = 0; i < height_; i++) {
     for (int j = 0; j < width_; j++) {
-      cout << (horizontal_lines_[i][j] == O   ? 'O'
-               : horizontal_lines_[i][j] == X ? 'X'
-                                              : ' ');
+      cout << (horizontal_lines_[i][j] == O   ? filled
+               : horizontal_lines_[i][j] == X ? non_filled
+                                              : empty);
     }
     cout << endl;
   }

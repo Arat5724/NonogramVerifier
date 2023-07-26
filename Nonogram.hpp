@@ -16,7 +16,8 @@ int test1();
 class Nonogram {
  public:
   Nonogram(int height, int width, vector<Line> horizontal_lines,
-           vector<Line> vertical_lines);
+           vector<Line> vertical_lines, string chars);
+  pair<int, int> cells_info() const;
   int get_rank(int pos) const;
   void quick_solve(const deque<int>& order);
   void solve(const deque<int>& order, const vector<bool>& is_in);
@@ -29,6 +30,7 @@ class Nonogram {
   int width_;
   vector<Line> horizontal_lines_;
   vector<Line> vertical_lines_;
+  string chars_;
   Nonogram();
   void solve_(const deque<int>& order, const vector<bool>& is_in, int flag);
 };
