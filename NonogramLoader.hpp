@@ -40,12 +40,16 @@ class NonogramLoader {
       vertical_lines.push_back(Line(vertical_string));
     }
 
-    fin.open("setting");
-    if (!fin.is_open()) cout << "setting file doesn't exist." << endl;
     string chars;
-    getline(fin, chars);
-    fin.close();
-    chars = chars.substr(0, 3);
+    fin.open("setting");
+    if (!fin.is_open()) {
+      getline(fin, chars);
+      fin.close();
+      chars = chars.substr(0, 3);
+    } else {
+      cout << "setting file doesn't exist." << endl;
+      chars = "O.X";
+    }
     return Nonogram(height, width, horizontal_lines, vertical_lines, chars);
   }
 };
