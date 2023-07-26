@@ -42,7 +42,7 @@ class NonogramLoader {
 
     string chars;
     fin.open("setting");
-    if (!fin.is_open()) {
+    if (fin.is_open()) {
       getline(fin, chars);
       fin.close();
       chars = chars.substr(0, 3);
