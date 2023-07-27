@@ -1,6 +1,10 @@
-NAME = nmnm
+NAME = nmnm.exe
 
+ifdef DEBUG
+CXXFLAG = -static-libgcc -static-libstdc++ -O2 -DDEBUG=1
+else
 CXXFLAG = -static-libgcc -static-libstdc++ -O2
+endif
 
 INC = include
 
@@ -12,7 +16,8 @@ OBJS = $(addprefix $(OBJDIR)/,$(SRCS:.cpp=.o))
 
 all : $(NAME)
 
-bonus : all
+debug :
+	make DEBUG=1
 
 $(NAME) : $(OBJS)
 	$(CXX) $(CXXFLAG) $(OBJS) -o $(NAME)
