@@ -37,9 +37,10 @@ void Nonogram::solve(const deque<int>& order, const vector<bool>& is_in_order) {
 void Nonogram::solve_(const deque<int>& order, const vector<bool>& is_in_order,
                       int flag) {
   for (int i : order) {
-    int direction = (i < height_) ? H : V;
+    int is_horizontal = (i < height_) ? height_ : 0;
     i = (i < height_) ? i : (i - height_);
-    Line& line = direction == H ? horizontal_lines_[i] : vertical_lines_[i];
+    Line& line = is_horizontal ? horizontal_lines_[i] : vertical_lines_[i];
+    int start_index = line.start_index(), end_index = line.end_index();
     if (line.clue_size() == 0 || line.last_solving_ <= flag) continue;
 #ifdef DEBUG
     cout << "direction: " << direction << endl;
@@ -55,24 +56,15 @@ void Nonogram::solve_(const deque<int>& order, const vector<bool>& is_in_order,
     if (status == ERROR) throw exception();
     deque<int> next_quick_solving_order;
     deque<int> next_solving_order;
-    if (direction == H) {
-      for (int j = 0; j < width_; j++) {
-        if (vertical_lines_[j][i] != line[j]) {
-          vertical_lines_[j][i] = line[j];
-          vertical_lines_[j].last_solving_ = 2;
-          next_quick_solving_order.push_back(j + height_);
-          if (flag == NORMAL && is_in_order[j + height_])
-            next_solving_order.push_back(j + height_);
-        }
-      }
-    } else {
-      for (int j = 0; j < height_; j++) {
-        if (horizontal_lines_[j][i] != line[j]) {
-          horizontal_lines_[j][i] = line[j];
-          horizontal_lines_[j].last_solving_ = 2;
-          next_quick_solving_order.push_back(j);
-          if (flag == NORMAL && is_in_order[j]) next_solving_order.push_back(j);
-        }
+    vector<Line>& perpendicular_lines =
+        (is_horizontal) ? vertical_lines_ : horizontal_lines_;
+    for (int j = start_index; j < end_index; j++) {
+      if (perpendicular_lines[j][i] != line[j]) {
+        perpendicular_lines[j][i] = line[j];
+        perpendicular_lines[j].last_solving_ = 2;
+        next_quick_solving_order.push_back(j + is_horizontal);
+        if (flag == NORMAL && is_in_order[j + is_horizontal])
+          next_solving_order.push_back(j + is_horizontal);
       }
     }
     if (!next_quick_solving_order.empty()) {

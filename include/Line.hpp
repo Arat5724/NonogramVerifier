@@ -34,6 +34,8 @@ class Line {
 
   int last_solving_;
   int clue_size() const { return this->clue_size_; }
+  int start_index() const { return this->start_index_; }
+  int end_index() const { return this->end_index_; }
 
   int get_rank() const;
 
