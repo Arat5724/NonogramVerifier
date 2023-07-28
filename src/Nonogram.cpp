@@ -41,9 +41,11 @@ void Nonogram::solve_(const deque<int>& order, const vector<bool>& is_in_order,
     i = (i < height_) ? i : (i - height_);
     Line& line = is_horizontal ? horizontal_lines_[i] : vertical_lines_[i];
     int start_index = line.start_index(), end_index = line.end_index();
-    if (line.clue_size() == 0 || line.last_solving_ <= flag) continue;
+    if ((line.clue_size() == 0 && line.start_index() == line.end_index()) ||
+        line.last_solving_ <= flag)
+      continue;
 #ifdef DEBUG
-    cout << "direction: " << direction << endl;
+    cout << "is_horizontal: " << is_horizontal << endl;
     cout << "i: " << i << endl;
     cout << "line: ";
     line.print();
