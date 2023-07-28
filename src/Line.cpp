@@ -284,7 +284,7 @@ int Line::get_start_point_(int flag) {
  */
 int Line::solve_(int flag) {
 #ifdef DEBUG
-  this->print();
+  // this->print();
 #endif
   if (this->clue_size_ == 0) {
     for (int i = this->start_index_; i < this->end_index_; i++) {

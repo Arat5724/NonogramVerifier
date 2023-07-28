@@ -44,8 +44,11 @@ class Line {
 
 #ifdef DEBUG
   void print() const;
-#endif
+
+ public:
+#else
  private:
+#endif
   deque<int> clues_;
   int clue_size_;
   int sum_clues_;

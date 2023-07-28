@@ -24,7 +24,9 @@ class Nonogram {
   int height() const { return height_; }
   int width() const { return width_; }
   void print() const;
-
+#ifdef DEBUG
+  friend int test1();
+#endif
  private:
   int height_;
   int width_;
