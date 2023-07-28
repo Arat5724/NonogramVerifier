@@ -1,7 +1,7 @@
 #ifndef NONOGRAM_HPP
 #define NONOGRAM_HPP
 
-#include "line.hpp"
+#include "Line.hpp"
 
 #ifdef DEBUG
 int test1();

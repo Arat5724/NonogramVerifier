@@ -3,7 +3,7 @@
 
 #include <algorithm>
 
-#include "nonogram.hpp"
+#include "Nonogram.hpp"
 
 class NonogramSolver {
  public:

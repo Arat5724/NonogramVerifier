@@ -1,4 +1,4 @@
-#include "line.hpp"
+#include "Line.hpp"
 
 Line::Line() {}
 
@@ -66,13 +66,13 @@ int Line::get_rank() const {
 }
 
 int Line::quick_solve() {
-  if (this->solve_(1) == ERROR) return ERROR;
+  if (this->solve_(1, 1) == ERROR) return ERROR;
   if (this->update_clues_() == ERROR) return ERROR;
   return SUCCESS;
 }
 
 int Line::solve() {
-  if (this->solve_(0) == ERROR) return ERROR;
+  if (this->solve_(0, 0) == ERROR) return ERROR;
   if (this->update_clues_() == ERROR) return ERROR;
   return SUCCESS;
 }
@@ -282,7 +282,7 @@ int Line::get_start_point_(int flag) {
  *  SUCCESS: success
  *  ERROR: error
  */
-int Line::solve_(int flag) {
+int Line::solve_(int left, int right) {
 #ifdef DEBUG
   // this->print();
 #endif
@@ -299,7 +299,7 @@ int Line::solve_(int flag) {
   if (mark_status == END || flag >= FRONT + BACK) return SUCCESS;
   if (mark_status == ERROR) return ERROR;
 
-  int start_point = this->get_start_point_(flag);
+  int start_point = this->get_start_point_(left, right);
   bool is_copied = false;
   Line temp_line = *this;
   if (flag) flag += start_point;

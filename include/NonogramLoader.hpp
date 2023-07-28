@@ -3,7 +3,7 @@
 
 #include <fstream>
 
-#include "nonogram.hpp"
+#include "Nonogram.hpp"
 
 class NonogramLoader {
  public:
