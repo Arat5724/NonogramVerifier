@@ -48,7 +48,7 @@ class NonogramLoader {
       chars = chars.substr(0, 3);
     } else {
       cout << "setting file doesn't exist." << endl;
-      chars = "O.X";
+      chars = "@ O";
     }
     return Nonogram(height, width, horizontal_lines, vertical_lines, chars);
   }
