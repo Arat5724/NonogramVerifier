@@ -2,20 +2,15 @@
 
 #include "Nonogram.hpp"
 #include "NonogramLoader.hpp"
-#include "NonogramSolver.hpp"
 
 int main(void) {
-#ifdef DEBUG
-  test1();
-  return 0;
-#endif
-  string filename;
   cout << "Enter the filename: ";
+  string filename;
   getline(cin, filename);
   Nonogram nonogram = NonogramLoader::load(filename);
   struct timeval start, end;
   gettimeofday(&start, NULL);
-  NonogramSolver::solve(nonogram);
+  nonogram.solve();
   gettimeofday(&end, NULL);
   nonogram.print();
   cout << "Time elapsed: "
