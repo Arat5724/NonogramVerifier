@@ -3,10 +3,17 @@
 #include "Nonogram.hpp"
 #include "NonogramLoader.hpp"
 
-int main(void) {
-  cout << "Enter the filename: ";
+int main(int argc, char* argv[]) {
   string filename;
-  getline(cin, filename);
+  if (argc == 1) {
+    cout << "Enter the filename: ";
+    getline(cin, filename);
+  } else if (argc == 2) {
+    filename = argv[1];
+  } else {
+    cout << "Enter only one filename" << endl;
+    return 0;
+  }
   Nonogram nonogram = NonogramLoader::load(filename);
   struct timeval start, end;
   gettimeofday(&start, NULL);
