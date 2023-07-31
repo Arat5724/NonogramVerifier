@@ -11,9 +11,9 @@ INC = include
 SRCDIR = src
 
 ifdef DEBUG
-SRCS = main.cpp Line.cpp Nonogram.cpp NonogramSolver.cpp test.cpp
+SRCS = main.cpp Line.cpp Nonogram.cpp test.cpp
 else
-SRCS = main.cpp Line.cpp Nonogram.cpp NonogramSolver.cpp
+SRCS = main.cpp Line.cpp Nonogram.cpp
 endif
 OBJDIR = obj
 OBJS = $(addprefix $(OBJDIR)/,$(SRCS:.cpp=.o))
