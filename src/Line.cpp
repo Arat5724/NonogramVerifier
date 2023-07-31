@@ -60,6 +60,12 @@ Line::~Line() {}
 vector<vector<long long>> Line::cache_ =
     vector<vector<long long>>(111, vector<long long>(111, 0));
 
+vector<vector<vector<int>>> Line::dp_ = vector<vector<vector<int>>>(
+    301, vector<vector<int>>(150, vector<int>(301)));
+
+vector<vector<int>> Line::is_visited_ =
+    vector<vector<int>>(301, vector<int>(150));
+
 long long Line::get_cache_(int n, int r) {
   if (this->cache_[n][r]) return this->cache_[n][r];
   if (n - r < r) r = n - r;
@@ -74,7 +80,8 @@ long long Line::get_cache_(int n, int r) {
 
 long long Line::get_rank() {
   if (this->clue_size_ == 0 || this->capacity_ == 0) return 0;
-  return this->get_cache_(this->capacity_ + this->clue_size_, this->clue_size_);
+  // return this->get_cache_(this->capacity_ + this->clue_size_,
+  // this->clue_size_);
   return (this->end_index_ - this->start_index_) * this->clue_size_ -
          this->sum_clues_;
 }
@@ -83,28 +90,17 @@ int Line::solve() {
   int mark_status = this->mark_();
   if (mark_status == ERROR) return ERROR;
   if (mark_status == END) return SUCCESS;
-
-  this->dp_ = new vector<vector<vector<int>*>>(
-      this->cells_.size() + 1, vector<vector<int>*>(this->clue_size_, nullptr));
-  this->is_visited_ = new vector<vector<bool>>(
-      this->cells_.size() + 1, vector<bool>(this->clue_size_, false));
+  for (int i = 0; i < this->cells_.size() + 1; i++)
+    for (int j = 0; j < this->clue_size_; j++) this->is_visited_[i][j] = NO;
   this->update_prefix_sum_();
-
   this->last_x_ = this->end_index_ - 1;
-  for (; this->last_x_ >= this->start_index_ && this->cells_[last_x_] != X;
+  for (; this->last_x_ >= this->start_index_ && this->cells_[last_x_] == B;
        this->last_x_--) {
   }
-
-  vector<int>* result_front = this->solve_(this->start_index_, 0);
-  if (result_front != nullptr)
-    for (int i = this->start_index_; i < this->end_index_; i++)
-      (*this)[i] = (*result_front)[i - this->start_index_];
-  for (vector<vector<int>*> v : *(this->dp_))
-    for (vector<int>* v2 : v)
-      if (v2 != nullptr) delete v2;
-  delete this->dp_;
-  delete this->is_visited_;
-  if (result_front == nullptr) return ERROR;
+  if (this->solve_(this->start_index_, 0) == ERROR) return ERROR;
+  vector<int>& result = this->dp_[this->start_index_][0];
+  for (int i = this->start_index_; i < this->end_index_; i++)
+    (*this)[i] = result[i];
   if (this->update_clues_() == ERROR) return ERROR;
   return SUCCESS;
 }
@@ -124,90 +120,92 @@ void Line::update_prefix_sum_() {
     this->prefix_sum_[i] += this->prefix_sum_[i + 1] + 1;
 }
 
-vector<int>* Line::solve_(int start_index, int clue_index) {
+int Line::solve_(int start_index, int clue_index) {
   vector<int>& cells = this->cells_;
-  vector<vector<vector<int>*>>& dp = *this->dp_;
-  vector<vector<bool>>& is_visited = *this->is_visited_;
 
-  if (is_visited[start_index][clue_index]) return dp[start_index][clue_index];
-  is_visited[start_index][clue_index] = true;
-  if (this->end_index_ - start_index - this->prefix_sum_[clue_index] < 0)
-    return nullptr;
+  int& current_status = this->is_visited_[start_index][clue_index];
 
-  vector<int>* obvious_result =
-      this->solve_get_obvious_result_(start_index, clue_index);
-  if (obvious_result != nullptr) {
-    dp[start_index][clue_index] = obvious_result;
-    return obvious_result;
+  vector<int>& current = this->dp_[start_index][clue_index];
+  vector<int>& next = this->dp_[start_index + 1][clue_index];
+
+  if (current_status != NO) return current_status;
+
+  if ((this->end_index_ - start_index - this->prefix_sum_[clue_index] < 0) ||
+      (start_index != this->start_index_ && cells[start_index - 1] == O)) {
+    current_status = ERROR;
+    return ERROR;
   }
+  // if (this->solve_get_obvious_result_(start_index, clue_index) == SUCCESS) {
+  //   current_status = SUCCESS;
+  //   return SUCCESS;
+  // }
 
-  vector<int>* next = this->solve_get_next_(start_index, clue_index);
+  int next_status = this->solve_(start_index + 1, clue_index);
   int clue = this->clues_[clue_index];
   int size = clue_index == this->clue_size_ - 1 ? this->end_index_ - start_index
                                                 : clue + 1;
-  if (this->solve_is_valid_(start_index, clue, size) == ERROR) {
-    dp[start_index][clue_index] = next;
-    return next;
-  }
 
-  vector<int>* result_back = nullptr;
-  if (clue_index < this->clue_size_ - 1) {
-    result_back = this->solve_(start_index + size, clue_index + 1);
-    if (result_back == nullptr) {
-      dp[start_index][clue_index] = next;
-      return next;
+  if ((this->solve_front_(start_index, clue_index, clue, size) == ERROR) ||
+      this->solve_back_(start_index, clue_index, clue, size) == ERROR) {
+    current_status = next_status;
+    if (next_status == SUCCESS) {
+      current[start_index] = X;
+      for (int i = start_index + 1; i < this->end_index_; i++)
+        current[i] = next[i];
     }
+    return next_status;
   }
-
-  vector<int>* result_front = new vector<int>(size);
-  for (int i = 0; i < clue; i++) (*result_front)[i] = O;
-  for (int i = clue; i < size; i++) (*result_front)[i] = X;
-  if (result_back != nullptr)
-    result_front->insert(result_front->end(), result_back->begin(),
-                         result_back->end());
-  if (next != nullptr) {
-    for (int i = 0; i < (*result_front).size(); i++)
-      if ((*result_front)[i] != (*next)[i] && (*result_front)[i] != B)
-        (*result_front)[i] = B;
-    delete next;
+  if (next_status == SUCCESS) {
+    current[start_index] = B;
+    for (int i = start_index + 1; i < this->end_index_; i++)
+      if (current[i] != next[i] && current[i] != B) current[i] = B;
   }
-
-  dp[start_index][clue_index] = result_front;
-  return result_front;
+  current_status = SUCCESS;
+  return current_status;
 }
 
-vector<int>* Line::solve_get_obvious_result_(int start_index, int clue_index) {
-  if (start_index <= this->last_x_) return nullptr;
-  for (int i = start_index; i < this->end_index_; i++)
-    if (this->cells_[i] != B) return nullptr;
+int Line::solve_get_obvious_result_(int start_index, int clue_index) {
+  if (start_index <= this->last_x_) return ERROR;
 
-  vector<int>* result = new vector<int>(this->end_index_ - start_index, B);
+  vector<int>& current = this->dp_[start_index][clue_index];
+
   int capacity = this->end_index_ - start_index - this->prefix_sum_[clue_index];
-  int index = -1;
+  int index = start_index - 1;
   for (; clue_index < this->clue_size_; clue_index++) {
     index += this->clues_[clue_index];
     int block_size = this->clues_[clue_index] - capacity;
-    for (int i = 0; i < block_size; i++) (*result)[index - i] = O;
+    for (int i = 0; i < block_size; i++) current[index - i] = O;
     index++;
-    if (index != result->size() && capacity == 0) (*result)[index] = X;
+    if (index != this->end_index_ && capacity == 0) current[index] = X;
   }
-  return result;
+  return SUCCESS;
 }
 
-vector<int>* Line::solve_get_next_(int start_index, int clue_index) {
-  if (this->cells_[start_index] == O) return nullptr;
-  vector<int>* temp = this->solve_(start_index + 1, clue_index);
-  if (temp == nullptr) return nullptr;
-  vector<int>* next = new vector<int>(1, X);
-  next->insert(next->end(), temp->begin(), temp->end());
-  return next;
+int Line::solve_get_next_(int start_index, int clue_index) {
+  if (this->cells_[start_index] == O) ERROR;
+  return this->solve_(start_index + 1, clue_index);
 }
 
-int Line::solve_is_valid_(int start_index, int clue, int size) {
-  for (int i = 0; i < clue; i++)
+int Line::solve_front_(int start_index, int clue_index, int clue, int size) {
+  vector<int>& current = this->dp_[start_index][clue_index];
+  for (int i = 0; i < clue; i++) {
     if (this->cells_[start_index + i] == X) return ERROR;
-  for (int i = clue; i < size; i++)
+    current[start_index + i] = O;
+  }
+  for (int i = clue; i < size; i++) {
     if (this->cells_[start_index + i] == O) return ERROR;
+    current[start_index + i] = X;
+  }
+  return SUCCESS;
+}
+
+int Line::solve_back_(int start_index, int clue_index, int clue, int size) {
+  if (clue_index >= this->clue_size_ - 1) return SUCCESS;
+  if (this->solve_(start_index + size, clue_index + 1) == ERROR) return ERROR;
+  vector<int>& current = this->dp_[start_index][clue_index];
+  vector<int>& back = this->dp_[start_index + size][clue_index + 1];
+  for (int i = start_index + size; i < this->end_index_; i++)
+    current[i] = back[i];
   return SUCCESS;
 }
 
@@ -382,7 +380,7 @@ int Line::update_end_index_() {
   return SUCCESS;
 }
 
-#ifdef DEBUG
+// #ifdef DEBUG
 void Line::print() {
   cout << "rank: " << this->get_rank() << endl;
   cout << "\nline.clues_= {";
@@ -407,4 +405,4 @@ void Line::print() {
        << "line.end_index_= " << this->end_index_ << ";" << endl
        << "-------------------" << endl;
 }
-#endif
+// #endif

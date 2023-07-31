@@ -4,6 +4,10 @@
 #include "NonogramLoader.hpp"
 
 int main(int argc, char* argv[]) {
+#ifdef DEBUG
+  test1();
+  return 0;
+#endif
   string filename;
   if (argc == 1) {
     cout << "Enter the filename: ";

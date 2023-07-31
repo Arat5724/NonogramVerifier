@@ -23,23 +23,28 @@ void Nonogram::solve() {
     pq.push({-rank, i});
     is_in_pq_stack[i].push(rank);
   }
+  long long n = 0;
   while (!pq.empty()) {
+    n++;
     pair<long long, int> top = pq.top();
     pq.pop();
     long long rank = top.first;
     int i = top.second;
     is_in_pq_stack[i].pop();
-
+    // cout << "n: " << n << ", i: " << i << ", rank: " << -rank << endl;
     int is_horizontal = (i < height_) ? height_ : 0;
     i = (i < height_) ? i : (i - height_);
     Line& line = is_horizontal ? horizontal_lines_[i] : vertical_lines_[i];
+    // line.print();
     int start_index = line.start_index(), end_index = line.end_index();
     if (line.clue_size() == 0 && line.start_index() == line.end_index())
       continue;
     if (line.solve() == ERROR) {
+      line.print();
       cout << "ERROR" << endl;
       throw exception();
     }
+    // line.print();
     vector<Line>& perpendicular_lines =
         (is_horizontal) ? vertical_lines_ : horizontal_lines_;
     for (int j = start_index; j < end_index; j++) {

@@ -4,6 +4,7 @@
 #include <deque>
 #include <exception>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -12,6 +13,9 @@ using namespace std;
 #define X -1
 #define B 0
 #define O 1
+
+#define NO -1
+#define YES 0
 
 #define SUCCESS 0
 #define ERROR 1
@@ -26,7 +30,10 @@ using namespace std;
 
 class Line {
  public:
+  static vector<vector<vector<int>>> dp_;
+  static vector<vector<int>> is_visited_;
   static vector<vector<long long>> cache_;
+
   long long get_cache_(int n, int r);
   long long get_rank();
 
@@ -43,8 +50,8 @@ class Line {
   int clue_size() const { return this->clue_size_; }
   int start_index() const { return this->start_index_; }
   int end_index() const { return this->end_index_; }
-#ifdef DEBUG
   void print();
+#ifdef DEBUG
 
  public:
 #else
@@ -62,15 +69,14 @@ class Line {
   void update_capacity_();
   void update_prefix_sum_();
 
-  vector<vector<vector<int>*>>* dp_;
-  vector<vector<bool>>* is_visited_;
   vector<int> prefix_sum_;
   int last_x_;
 
-  vector<int>* solve_(int start_index, int clue_index);
-  vector<int>* solve_get_obvious_result_(int start_index, int clue_index);
-  vector<int>* solve_get_next_(int start_index, int clue_index);
-  int solve_is_valid_(int start_index, int clue, int size);
+  int solve_(int start_index, int clue_index);
+  int solve_get_obvious_result_(int start_index, int clue_index);
+  int solve_get_next_(int start_index, int clue_index);
+  int solve_front_(int start_index, int clue_index, int clue, int size);
+  int solve_back_(int start_index, int clue_index, int clue, int size);
   int update_clues_();
 
   int mark_();

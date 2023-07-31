@@ -10,27 +10,22 @@ class NonogramLoader {
   static Nonogram load(const string& filename) {
     ifstream fin;
     fin.open(filename);
-    if (!fin.is_open()) {
-      cout << "File not found." << endl;
-      exit(1);
-    }
+    if (!fin.is_open()) print_error("File not found.");
+
     string url, s_width, s_height, raw_string;
     fin >> url >> s_width >> s_height >> raw_string;
     fin.close();
-    if (url != "www.logichome.org") {
-      cout << "Invalid format." << endl;
-      exit(1);
-    }
+    if (url != "www.logichome.org") print_error("Invalid url.");
+
     int height, width;
     height = stoi(s_height);
     width = stoi(s_width);
-    if (height < 1 || width < 1 && height * width != raw_string.length()) {
-      cout << "Invalid dimensions." << endl;
-      exit(1);
-    }
+    if (height < 1 || width < 1 && height * width != raw_string.length())
+      print_error("Invalid dimensions.");
+    if (height > 300 || width > 300) print_error("Too large.");
+
     vector<Line> horizontal_lines;
     vector<Line> vertical_lines;
-
     for (int i = 0; i < height; i++)
       horizontal_lines.push_back(Line(raw_string.substr(i * width, width)));
     for (int i = 0; i < width; i++) {
@@ -51,6 +46,12 @@ class NonogramLoader {
       chars = "@ O";
     }
     return Nonogram(height, width, horizontal_lines, vertical_lines, chars);
+  }
+
+  static void print_error(const string& message) {
+    cout << message << endl;
+    system("pause");
+    exit(1);
   }
 };
 
